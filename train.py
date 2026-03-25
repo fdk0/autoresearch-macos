@@ -17,6 +17,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+try:
+    from kernels import get_kernel
+except ImportError:
+    get_kernel = None
+
 from prepare import (
     MAX_SEQ_LEN,
     TIME_BUDGET,
@@ -26,6 +31,52 @@ from prepare import (
     get_available_device_type,
     make_dataloader,
 )
+
+flash_attn_func = None
+attention_backend = "sdpa"
+
+
+def configure_attention_backend(device_type):
+    global flash_attn_func, attention_backend
+    flash_attn_func = None
+    attention_backend = "sdpa"
+    if device_type != "cuda" or get_kernel is None:
+        return
+    try:
+        cap = torch.cuda.get_device_capability()
+        # varunneal's FA3 is Hopper only, use kernels-community on non-Hopper GPUs
+        repo = "varunneal/flash-attention-3" if cap == (9, 0) else "kernels-community/flash-attn3"
+        flash_attn_func = get_kernel(repo).flash_attn_interface.flash_attn_func
+        attention_backend = f"flash-attn3 ({repo})"
+    except Exception as exc:
+        print(f"Falling back to PyTorch SDPA attention: {exc}")
+
+
+def run_attention(q, k, v, window_size, n_head, n_kv_head):
+    if flash_attn_func is not None:
+        return flash_attn_func(q, k, v, causal=True, window_size=window_size)
+
+    # PyTorch SDPA fallback without FlashAttention 3
+    # Expand heads for KV based on GQA
+    k = k.repeat_interleave(n_head // n_kv_head, dim=2)
+    v = v.repeat_interleave(n_head // n_kv_head, dim=2)
+
+    # Transpose to [B, H, T, D]
+    q = q.transpose(1, 2)
+    k = k.transpose(1, 2)
+    v = v.transpose(1, 2)
+
+    # Apply mask for sliding window
+    T = q.size(2)
+    window = window_size[0]
+    if window > 0 and window < T:
+        mask = torch.ones(T, T, dtype=torch.bool, device=q.device).tril()
+        mask = mask.triu(diagonal=1 - window)
+        y = F.scaled_dot_product_attention(q, k, v, attn_mask=mask)
+    else:
+        y = F.scaled_dot_product_attention(q, k, v, is_causal=True)
+
+    return y.transpose(1, 2).contiguous()
 
 # ---------------------------------------------------------------------------
 # GPT Model
@@ -92,27 +143,8 @@ class CausalSelfAttention(nn.Module):
         q, k = apply_rotary_emb(q, cos, sin), apply_rotary_emb(k, cos, sin)
         q, k = norm(q), norm(k)
 
-        # PyTorch SDPA without FlashAttention 3
-        # Expand heads for KV based on GQA
-        k = k.repeat_interleave(self.n_head // self.n_kv_head, dim=2)
-        v = v.repeat_interleave(self.n_head // self.n_kv_head, dim=2)
-        
-        # Transpose to [B, H, T, D]
-        q = q.transpose(1, 2)
-        k = k.transpose(1, 2)
-        v = v.transpose(1, 2)
-        
-        # Apply mask for sliding window
-        window = window_size[0]
-        if window > 0 and window < T:
-            # Mask out tokens outside the window
-            mask = torch.ones(T, T, dtype=torch.bool, device=q.device).tril()
-            mask = mask.triu(diagonal=1 - window)
-            y = F.scaled_dot_product_attention(q, k, v, attn_mask=mask)
-        else:
-            y = F.scaled_dot_product_attention(q, k, v, is_causal=True)
-            
-        y = y.transpose(1, 2).contiguous().view(B, T, -1)
+        y = run_attention(q, k, v, window_size, self.n_head, self.n_kv_head)
+        y = y.contiguous().view(B, T, -1)
         y = self.c_proj(y)
         return y
 
@@ -511,7 +543,9 @@ torch.set_float32_matmul_precision("high")
 # Detect device
 device_type = get_available_device_type()
 device = torch.device(device_type)
+configure_attention_backend(device_type)
 print(f"Runtime backend: {describe_runtime_backend(device_type)}")
+print(f"Attention backend: {attention_backend}")
 
 # Autocast context
 if device_type == "cuda":
