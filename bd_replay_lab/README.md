@@ -60,6 +60,12 @@ Recommended launcher:
 ./bd_replay_lab/scripts/launch_codex_dev_loop.sh
 ```
 
+Behavior:
+
+- default: validates/bootstrap local PolyTick replay context and starts Codex with a prepared initial prompt
+- `--no-prompt`: open the interactive session without injecting the initial loop prompt
+- `--print-prompt`: print the default initial prompt text and exit
+
 ### Cases
 
 A case is one decision point.
