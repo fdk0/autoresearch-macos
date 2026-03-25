@@ -13,22 +13,19 @@ import math
 import time
 from dataclasses import dataclass, asdict
 
-import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-def verify_macos_env():
-    if sys.platform != "darwin":
-        raise RuntimeError(f"This script requires macOS with Metal. Detected platform: {sys.platform}")
-    if not torch.backends.mps.is_available():
-        raise RuntimeError("MPS (Metal Performance Shaders) is not available. Ensure you are running on Apple Silicon with a compatible PyTorch build.")
-    print("Environment verified: macOS detected with Metal (MPS) hardware acceleration available.")
-    print()
-
-verify_macos_env()
-
-from prepare import MAX_SEQ_LEN, TIME_BUDGET, Tokenizer, make_dataloader, evaluate_bpb
+from prepare import (
+    MAX_SEQ_LEN,
+    TIME_BUDGET,
+    Tokenizer,
+    describe_runtime_backend,
+    evaluate_bpb,
+    get_available_device_type,
+    make_dataloader,
+)
 
 # ---------------------------------------------------------------------------
 # GPT Model
@@ -512,8 +509,9 @@ if torch.cuda.is_available():
 torch.set_float32_matmul_precision("high")
 
 # Detect device
-device_type = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+device_type = get_available_device_type()
 device = torch.device(device_type)
+print(f"Runtime backend: {describe_runtime_backend(device_type)}")
 
 # Autocast context
 if device_type == "cuda":

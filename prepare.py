@@ -23,16 +23,26 @@ import rustbpe
 import tiktoken
 import torch
 
-def verify_macos_env():
-    import sys
-    if sys.platform != "darwin":
-        raise RuntimeError(f"This script requires macOS with Metal. Detected platform: {sys.platform}")
-    if not torch.backends.mps.is_available():
-        raise RuntimeError("MPS (Metal Performance Shaders) is not available. Ensure you are running on Apple Silicon with a compatible PyTorch build.")
-    print("Environment verified: macOS detected with Metal (MPS) hardware acceleration available.")
-    print()
+def mps_is_available():
+    return hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
 
-verify_macos_env()
+
+def get_available_device_type():
+    if torch.cuda.is_available():
+        return "cuda"
+    if mps_is_available():
+        return "mps"
+    return "cpu"
+
+
+def describe_runtime_backend(device_type=None):
+    device_type = device_type or get_available_device_type()
+    backend_names = {
+        "cuda": "NVIDIA CUDA",
+        "mps": "Apple Metal (MPS)",
+        "cpu": "CPU",
+    }
+    return f"{backend_names.get(device_type, device_type)} (device={device_type})"
 
 # ---------------------------------------------------------------------------
 # Constants (fixed, do not modify)
@@ -305,7 +315,7 @@ def make_dataloader(tokenizer, B, T, split, buffer_size=1000):
         doc_buffer.extend(token_lists)
 
     # Detect device
-    device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+    device = get_available_device_type()
 
     # Pre-allocate buffers: [inputs (B*T) | targets (B*T)]
     row_buffer = torch.empty((B, row_capacity), dtype=torch.long)
@@ -392,6 +402,7 @@ if __name__ == "__main__":
     num_shards = MAX_SHARD if args.num_shards == -1 else args.num_shards
 
     print(f"Cache directory: {CACHE_DIR}")
+    print(f"Runtime backend: {describe_runtime_backend()}")
     print()
 
     # Step 1: Download data
