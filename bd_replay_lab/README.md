@@ -45,6 +45,21 @@ Use the normal Codex assistant kernel together with:
 
 Do **not** rely on `/Users/fdk0/Documents/Codex/protocols/Assistant.md` alone for this work. It is too generic by itself.
 
+This repo is wired to a dedicated Codex home profile:
+
+- profile name: `bd-replay-loop`
+- instructions file: `~/.codex/protocols/BD-replay-loop.md`
+
+The protocol file should be a symlink to:
+
+- `bd_replay_lab/codex_loop_prompt.md`
+
+Recommended launcher:
+
+```bash
+./bd_replay_lab/scripts/launch_codex_dev_loop.sh
+```
+
 ### Cases
 
 A case is one decision point.
