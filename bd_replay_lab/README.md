@@ -36,6 +36,15 @@ bd_replay_lab/
 
 ## Main concepts
 
+## Which prompt to use with Codex
+
+Use the normal Codex assistant kernel together with:
+
+- `bd_replay_lab/codex_loop_prompt.md` for the actual replay-tuning loop
+- `bd_replay_lab/program.md` as the higher-level project/runbook description
+
+Do **not** rely on `/Users/fdk0/Documents/Codex/protocols/Assistant.md` alone for this work. It is too generic by itself.
+
 ### Cases
 
 A case is one decision point.
