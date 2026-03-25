@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 from datetime import datetime, timezone
@@ -17,8 +18,15 @@ def utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
-def run_bd_json(args: list[str]) -> Any:
-    proc = subprocess.run(["bd", *args, "--json"], text=True, capture_output=True, check=False)
+def run_bd_json(args: list[str], *, beads_dir: str | None = None, cwd: Path | None = None, readonly: bool = True) -> Any:
+    env = os.environ.copy()
+    if beads_dir:
+        env["BEADS_DIR"] = beads_dir
+    command = ["bd"]
+    if readonly:
+        command.append("--readonly")
+    command.extend([*args, "--json"])
+    proc = subprocess.run(command, text=True, capture_output=True, check=False, env=env, cwd=str(cwd) if cwd else None)
     if proc.returncode != 0:
         raise RuntimeError(proc.stderr.strip() or proc.stdout.strip() or f"bd {' '.join(args)} failed")
     return json.loads(proc.stdout)
@@ -83,14 +91,28 @@ def main() -> int:
     parser.add_argument("--lane", required=True, choices=["review", "dispatcher"])
     parser.add_argument("--id", dest="ids", action="append", required=True, help="Bead ID to extract; repeat for multiple")
     parser.add_argument("--outdir", required=True, help="Output directory for draft case JSON files")
+    parser.add_argument("--beads-dir", default=None, help="Explicit BEADS_DIR to use for bd commands")
+    parser.add_argument("--repo-root", default=None, help="Optional repo root to use as command cwd")
+    parser.add_argument("--allow-writes", action="store_true", help="Disable --readonly for bd commands (not recommended)")
     args = parser.parse_args()
 
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
+    repo_root = Path(args.repo_root).resolve() if args.repo_root else None
 
     for bead_id in args.ids:
-        issue = run_bd_json(["show", "--long", bead_id])
-        comments = run_bd_json(["comments", bead_id])
+        issue = run_bd_json(
+            ["show", "--long", bead_id],
+            beads_dir=args.beads_dir,
+            cwd=repo_root,
+            readonly=not args.allow_writes,
+        )
+        comments = run_bd_json(
+            ["comments", bead_id],
+            beads_dir=args.beads_dir,
+            cwd=repo_root,
+            readonly=not args.allow_writes,
+        )
         payload = draft_case(args.lane, bead_id, issue, comments)
         out_path = outdir / f"{payload['case_id']}.json"
         out_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")

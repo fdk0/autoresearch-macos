@@ -99,13 +99,15 @@ python3 bd_replay_lab/scripts/extract_cases_from_bd.py \
   --lane review \
   --id BD-123 \
   --id BD-124 \
+  --beads-dir /path/to/repo/.beads \
+  --repo-root /path/to/repo \
   --outdir bd_replay_lab/datasets/review_cases/drafts
 ```
 
 The extractor uses:
 
-- `bd show --json --long <ID>`
-- `bd comments --json <ID>`
+- `bd --readonly show --json --long <ID>`
+- `bd --readonly comments --json <ID>`
 
 and writes draft case JSON with:
 
