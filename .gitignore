@@ -27,3 +27,4 @@ results.tsv
 
 # BD replay lab generated outputs
 bd_replay_lab/out/
+bd_replay_lab/local/
