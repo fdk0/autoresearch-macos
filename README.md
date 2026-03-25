@@ -89,6 +89,37 @@ When you explicitly want Codex to stop or pause the loop, disarm it first:
 python3 scripts/codex_hooks/autoresearch_guard.py disarm
 ```
 
+## BD replay lab
+
+This repo also includes a `bd_replay_lab/` scaffold for improving Beads/Codex BD workflows using **offline replay** instead of full live-agent loops on every experiment.
+
+It is aimed at:
+
+- review rubric tuning
+- dispatcher routing tuning
+- hook/context compression experiments
+- direct case extraction from local Beads state using the `bd` CLI
+
+Start here:
+
+```bash
+sed -n '1,220p' bd_replay_lab/README.md
+```
+
+Example baseline evaluations:
+
+```bash
+python3 bd_replay_lab/scripts/eval_review.py \
+  --cases bd_replay_lab/datasets/review_cases/examples \
+  --candidate bd_replay_lab/candidates/review/review_baseline.json \
+  --predictor-command "python3 bd_replay_lab/predictors/review_baseline.py"
+
+python3 bd_replay_lab/scripts/eval_dispatcher.py \
+  --cases bd_replay_lab/datasets/dispatcher_cases/examples \
+  --candidate bd_replay_lab/candidates/dispatcher/dispatcher_baseline.json \
+  --predictor-command "python3 bd_replay_lab/predictors/dispatcher_baseline.py"
+```
+
 ## Project structure
 
 ```

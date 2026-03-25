@@ -1,0 +1,10 @@
+{
+  "candidate_id": "review_baseline",
+  "lane": "review",
+  "prompt_files": [
+    "bd_replay_lab/prompts/review/system_core.md",
+    "bd_replay_lab/prompts/review/rubric_v1.md",
+    "bd_replay_lab/prompts/review/findings_taxonomy.md"
+  ],
+  "notes": "Baseline review rubric for offline replay."
+}

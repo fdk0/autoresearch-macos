@@ -1,0 +1,10 @@
+{
+  "candidate_id": "dispatcher_baseline",
+  "lane": "dispatcher",
+  "prompt_files": [
+    "bd_replay_lab/prompts/dispatcher/system_core.md",
+    "bd_replay_lab/prompts/dispatcher/routing_rubric_v1.md",
+    "bd_replay_lab/prompts/dispatcher/continuity_rules.md"
+  ],
+  "notes": "Baseline dispatcher rubric for offline replay."
+}

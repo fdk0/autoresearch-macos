@@ -1,0 +1,32 @@
+{
+  "case_id": "dispatch_reconcile",
+  "lane": "dispatcher",
+  "packet_version": "dispatcher_packet_v1",
+  "input": {
+    "queue_snapshot": {
+      "runnable_count": 1
+    },
+    "latest_worker_truth": {
+      "terminal_status": "none"
+    },
+    "latest_review_truth": {
+      "remediation_pending": false
+    },
+    "pr_state": {
+      "same_pr_open": false,
+      "review_requested": false
+    },
+    "freshness_state": {
+      "requires_rebase": true
+    },
+    "dispatchability": {
+      "sealed": true
+    }
+  },
+  "expected": {
+    "next_action": "reconcile",
+    "reason_tags": [
+      "freshness_block"
+    ]
+  }
+}

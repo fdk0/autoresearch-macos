@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "dispatcher_case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "case_id",
+    "lane",
+    "packet_version",
+    "input",
+    "expected"
+  ],
+  "properties": {
+    "case_id": {
+      "type": "string"
+    },
+    "lane": {
+      "const": "dispatcher",
+      "type": "string"
+    },
+    "packet_version": {
+      "type": "string"
+    },
+    "input": {
+      "type": "object",
+      "required": [
+        "queue_snapshot",
+        "latest_worker_truth",
+        "latest_review_truth",
+        "pr_state",
+        "freshness_state",
+        "dispatchability"
+      ],
+      "additionalProperties": true
+    },
+    "expected": {
+      "type": "object",
+      "required": [
+        "next_action"
+      ],
+      "properties": {
+        "next_action": {
+          "type": "string",
+          "enum": [
+            "reuse_worker",
+            "reuse_review",
+            "spawn_worker",
+            "send_to_review",
+            "reconcile",
+            "idle"
+          ]
+        },
+        "reason_tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "metadata": {
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "case_id": "review_missing_verify",
+  "lane": "review",
+  "packet_version": "review_packet_v1",
+  "input": {
+    "pr_meta": {
+      "number": 101,
+      "title": "Implement worker handoff cleanup"
+    },
+    "diff_summary": {
+      "changed_files": [
+        "scripts/review_cleanup_pass.py"
+      ]
+    },
+    "verify_summary": {
+      "required_commands_passed": false,
+      "missing_required_evidence": true
+    },
+    "worker_status_v2": {
+      "present": true,
+      "verify_recorded": false
+    },
+    "scope_dod": {
+      "out_of_scope_files": []
+    },
+    "merge_state": {
+      "mergeable": true
+    }
+  },
+  "expected": {
+    "decision": "request_changes",
+    "findings": [
+      {
+        "type": "missing_verify_evidence",
+        "severity": "high"
+      }
+    ]
+  },
+  "metadata": {
+    "difficulty": "easy"
+  }
+}

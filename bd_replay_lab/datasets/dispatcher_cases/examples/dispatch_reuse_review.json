@@ -1,0 +1,33 @@
+{
+  "case_id": "dispatch_reuse_review",
+  "lane": "dispatcher",
+  "packet_version": "dispatcher_packet_v1",
+  "input": {
+    "queue_snapshot": {
+      "runnable_count": 0
+    },
+    "latest_worker_truth": {
+      "terminal_status": "done"
+    },
+    "latest_review_truth": {
+      "remediation_pending": true
+    },
+    "pr_state": {
+      "same_pr_open": true,
+      "review_requested": true
+    },
+    "freshness_state": {
+      "requires_rebase": false
+    },
+    "dispatchability": {
+      "sealed": true
+    }
+  },
+  "expected": {
+    "next_action": "reuse_review",
+    "reason_tags": [
+      "same_pr_remediation",
+      "continuity_preserved"
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "case_id": "review_scope_drift",
+  "lane": "review",
+  "packet_version": "review_packet_v1",
+  "input": {
+    "pr_meta": {
+      "number": 102,
+      "title": "Fix review status emission"
+    },
+    "diff_summary": {
+      "changed_files": [
+        "scripts/review_status.py",
+        "docs/unrelated-roadmap.md"
+      ]
+    },
+    "verify_summary": {
+      "required_commands_passed": true,
+      "missing_required_evidence": false
+    },
+    "worker_status_v2": {
+      "present": true,
+      "verify_recorded": true
+    },
+    "scope_dod": {
+      "out_of_scope_files": [
+        "docs/unrelated-roadmap.md"
+      ]
+    },
+    "merge_state": {
+      "mergeable": true
+    }
+  },
+  "expected": {
+    "decision": "request_changes",
+    "findings": [
+      {
+        "type": "out_of_scope_change",
+        "severity": "high"
+      }
+    ]
+  },
+  "metadata": {
+    "difficulty": "medium"
+  }
+}

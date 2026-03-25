@@ -24,3 +24,6 @@ results.tsv
 
 # Local autoresearch guard state
 .autoresearch/
+
+# BD replay lab generated outputs
+bd_replay_lab/out/

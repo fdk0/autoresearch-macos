@@ -1,0 +1,37 @@
+{
+  "case_id": "review_clean_pr",
+  "lane": "review",
+  "packet_version": "review_packet_v1",
+  "input": {
+    "pr_meta": {
+      "number": 103,
+      "title": "Tighten dispatchability seal checks"
+    },
+    "diff_summary": {
+      "changed_files": [
+        "scripts/dispatchability_seal.py"
+      ]
+    },
+    "verify_summary": {
+      "required_commands_passed": true,
+      "missing_required_evidence": false
+    },
+    "worker_status_v2": {
+      "present": true,
+      "verify_recorded": true
+    },
+    "scope_dod": {
+      "out_of_scope_files": []
+    },
+    "merge_state": {
+      "mergeable": true
+    }
+  },
+  "expected": {
+    "decision": "approve",
+    "findings": []
+  },
+  "metadata": {
+    "difficulty": "easy"
+  }
+}

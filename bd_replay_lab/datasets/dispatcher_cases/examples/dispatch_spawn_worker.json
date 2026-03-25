@@ -1,0 +1,33 @@
+{
+  "case_id": "dispatch_spawn_worker",
+  "lane": "dispatcher",
+  "packet_version": "dispatcher_packet_v1",
+  "input": {
+    "queue_snapshot": {
+      "runnable_count": 2
+    },
+    "latest_worker_truth": {
+      "terminal_status": "none"
+    },
+    "latest_review_truth": {
+      "remediation_pending": false
+    },
+    "pr_state": {
+      "same_pr_open": false,
+      "review_requested": false
+    },
+    "freshness_state": {
+      "requires_rebase": false
+    },
+    "dispatchability": {
+      "sealed": true
+    }
+  },
+  "expected": {
+    "next_action": "spawn_worker",
+    "reason_tags": [
+      "fresh_base",
+      "runnable_work"
+    ]
+  }
+}
