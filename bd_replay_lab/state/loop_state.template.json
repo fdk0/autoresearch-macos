@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "active_lane": "review",
+  "cycle_index": 0,
+  "best": {
+    "candidate_id": "review_baseline",
+    "score": null,
+    "commit": null,
+    "summary": null
+  },
+  "paths": {
+    "source_repo": "/Users/fdk0/Projects/PolyTick",
+    "source_beads": "/Users/fdk0/Projects/PolyTick/.beads",
+    "analysis_repo": "/Users/fdk0/Projects/PolyTick-bd-analysis",
+    "review_drafts": "bd_replay_lab/datasets/review_cases/drafts",
+    "review_gold": "bd_replay_lab/datasets/review_cases/gold",
+    "dispatcher_drafts": "bd_replay_lab/datasets/dispatcher_cases/drafts",
+    "dispatcher_gold": "bd_replay_lab/datasets/dispatcher_cases/gold",
+    "results_tsv": "bd_replay_lab/results.tsv",
+    "last_cycle_summary": "bd_replay_lab/out/last_cycle_summary.md"
+  },
+  "last_cycle": null
+}

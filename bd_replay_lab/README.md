@@ -66,6 +66,55 @@ Behavior:
 - `--no-prompt`: open the interactive session without injecting the initial loop prompt
 - `--print-prompt`: print the default initial prompt text and exit
 
+This interactive launcher is useful for exploratory setup and manual inspection, but it is **not** the true autoresearch harness.
+
+## True autoresearch mode
+
+If you want this to behave like the original autoresearch pattern, use the one-cycle `exec` runner and outer shell loop.
+
+This mode uses the custom Codex binary and a dedicated profile:
+
+- binary: `/Users/fdk0/.local/share/codex-binaries/codex-wake-upstream-prep-release`
+- profile: `bd-replay-autoresearch`
+- instructions file: `~/.codex/protocols/BD-replay-autoresearch.md`
+
+The protocol file should be a symlink to:
+
+- `bd_replay_lab/autoresearch_program.md`
+
+Initialize local state:
+
+```bash
+python3 bd_replay_lab/scripts/init_autoresearch_loop.py
+```
+
+Print the exact one-cycle prompt:
+
+```bash
+./bd_replay_lab/scripts/run_one_cycle_exec.sh --print-prompt
+```
+
+Run exactly one bounded experiment cycle:
+
+```bash
+./bd_replay_lab/scripts/run_one_cycle_exec.sh
+```
+
+Run the continuous outer loop:
+
+```bash
+./bd_replay_lab/scripts/run_autoresearch_loop.sh
+```
+
+This is the replay-lab equivalent of:
+
+```bash
+while true; do
+  /Users/fdk0/.local/share/codex-binaries/codex-wake-upstream-prep-release \
+    exec --profile bd-replay-autoresearch -C /Users/fdk0/git/autoresearch-macos -
+done
+```
+
 ### Cases
 
 A case is one decision point.

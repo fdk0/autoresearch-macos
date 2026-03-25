@@ -28,3 +28,6 @@ results.tsv
 # BD replay lab generated outputs
 bd_replay_lab/out/
 bd_replay_lab/local/
+bd_replay_lab/logs/
+bd_replay_lab/results.tsv
+bd_replay_lab/state/loop_state.json
