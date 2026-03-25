@@ -67,6 +67,28 @@ Hi have a look at program.md and let's kick off a new experiment! let's do the s
 
 The `program.md` file is essentially a super lightweight "skill".
 
+### Codex stop guard for unattended runs
+
+This repo includes a repo-local Codex hook configuration in `.codex/hooks.json` so unattended autoresearch sessions do not stop after a single completed experiment.
+
+Arm it when you start an `autoresearch/<tag>` branch:
+
+```bash
+python3 scripts/codex_hooks/autoresearch_guard.py arm --branch autoresearch/<tag>
+```
+
+Check status:
+
+```bash
+python3 scripts/codex_hooks/autoresearch_guard.py status
+```
+
+When you explicitly want Codex to stop or pause the loop, disarm it first:
+
+```bash
+python3 scripts/codex_hooks/autoresearch_guard.py disarm
+```
+
 ## Project structure
 
 ```
