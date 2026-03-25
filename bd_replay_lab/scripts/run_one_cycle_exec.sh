@@ -10,6 +10,7 @@ INIT_SCRIPT="$REPO_ROOT/bd_replay_lab/scripts/init_autoresearch_loop.py"
 STATE_FILE="$REPO_ROOT/bd_replay_lab/state/loop_state.json"
 RESULTS_FILE="$REPO_ROOT/bd_replay_lab/results.tsv"
 LAST_MESSAGE="$REPO_ROOT/bd_replay_lab/out/last_exec_message.txt"
+LAST_SUMMARY="$REPO_ROOT/bd_replay_lab/out/last_cycle_summary.md"
 
 PRINT_PROMPT=0
 PRINT_COMMAND=0
@@ -80,6 +81,9 @@ python3 "$CONTEXT_SCRIPT" >/dev/null
 python3 "$BOOTSTRAP_SCRIPT" >/dev/null
 python3 "$INIT_SCRIPT" >/dev/null
 
+BEFORE_RESULTS_LINES="$(wc -l < "$RESULTS_FILE")"
+BEFORE_STATE_HASH="$(shasum -a 256 "$STATE_FILE" | awk '{print $1}')"
+
 if [[ $PRINT_COMMAND -eq 1 ]]; then
   printf '%q ' "$CODEX_BIN" exec --profile "$PROFILE" -C "$REPO_ROOT" -o "$LAST_MESSAGE" -
   printf '\n'
@@ -87,3 +91,21 @@ if [[ $PRINT_COMMAND -eq 1 ]]; then
 fi
 
 printf '%s\n' "$PROMPT" | "$CODEX_BIN" exec --profile "$PROFILE" -C "$REPO_ROOT" -o "$LAST_MESSAGE" -
+
+AFTER_RESULTS_LINES="$(wc -l < "$RESULTS_FILE")"
+AFTER_STATE_HASH="$(shasum -a 256 "$STATE_FILE" | awk '{print $1}')"
+
+if [[ ! -s "$LAST_SUMMARY" ]]; then
+  echo "autoresearch cycle failed contract: $LAST_SUMMARY missing or empty" >&2
+  exit 1
+fi
+
+if (( AFTER_RESULTS_LINES <= BEFORE_RESULTS_LINES )); then
+  echo "autoresearch cycle failed contract: $RESULTS_FILE was not appended" >&2
+  exit 1
+fi
+
+if [[ "$AFTER_STATE_HASH" == "$BEFORE_STATE_HASH" ]]; then
+  echo "autoresearch cycle failed contract: $STATE_FILE was not updated" >&2
+  exit 1
+fi
